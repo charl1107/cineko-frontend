@@ -2,7 +2,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom"
 import { useEffect, useState, useRef } from "react"
 import { useTmdb } from "@/hooks/use-tmdb"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, PanelRightClose, PanelRightOpen } from "lucide-react"
+import { ChevronLeft, PanelRightClose, PanelRightOpen, Maximize, Minimize } from "lucide-react"
 import {
     Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select"
@@ -69,8 +69,16 @@ export default function WatchAnimePage() {
     const [error, setError] = useState<string | null>(null)
     const [sidebarOpen, setSidebarOpen] = useState(true)
     const [rangeValue, setRangeValue] = useState<string>("all")
+    const [theaterMode, setTheaterMode] = useState(false)
 
     const currentEpisode = parseInt(searchParams.get("e") || "1", 10)
+
+    // Auto-open sidebar in theater mode
+    useEffect(() => {
+        if (theaterMode) {
+            setSidebarOpen(true)
+        }
+    }, [theaterMode])
 
     // Auto-select range containing current episode
     useEffect(() => {
@@ -159,16 +167,33 @@ export default function WatchAnimePage() {
 
     return (
         <>
-            <div className="relative flex h-screen w-full flex-col bg-black text-white">
-            {/* Header */}
-            <div className="flex h-12 shrink-0 items-center border-b border-white/10 bg-black/90 px-4 z-10">
-                <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
-                    <ChevronLeft className="mr-1 h-4 w-4" /> Back
-                </Button>
-                <div className="ml-4 text-sm font-medium text-white/80 line-clamp-1">
-                    {animeTitle}
+            <div className={cn(
+                "flex flex-col bg-black text-white",
+                theaterMode
+                    ? "fixed inset-0 z-50 h-screen w-screen"
+                    : "relative h-screen w-full"
+            )}>
+                {/* Header */}
+                <div className="flex h-12 shrink-0 items-center border-b border-white/10 bg-black/90 px-4 z-10">
+                    <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
+                        <ChevronLeft className="mr-1 h-4 w-4" /> Back
+                    </Button>
+                    <div className="ml-4 text-sm font-medium text-white/80 line-clamp-1">
+                        {animeTitle}
+                    </div>
+                    <button
+                        onClick={() => setTheaterMode((v) => !v)}
+                        className="ml-auto flex items-center gap-1 rounded-md px-2 py-1 text-xs text-white/70 hover:bg-white/10 hover:text-white transition"
+                        title={theaterMode ? "Exit theater mode" : "Theater mode"}
+                    >
+                        {theaterMode ? (
+                            <Minimize className="h-4 w-4" />
+                        ) : (
+                            <Maximize className="h-4 w-4" />
+                        )}
+                        {theaterMode ? "Exit" : "Theater"}
+                    </button>
                 </div>
-            </div>
 
             {/* Body */}
             <div className="flex flex-1 overflow-hidden">
@@ -257,7 +282,10 @@ export default function WatchAnimePage() {
             </div>
 
             {/* Mobile bottom panel */}
-            <div className="flex h-28 shrink-0 flex-col border-t border-white/10 bg-[#0a0a0a] lg:hidden">
+            <div className={cn(
+                "flex h-28 shrink-0 flex-col border-t border-white/10 bg-[#0a0a0a]",
+                theaterMode ? "hidden" : "lg:hidden"
+            )}>
                 <div className="flex h-8 items-center gap-2 px-2 pt-1">
                     <span className="text-xs text-white/50">{episodes.length} episodes</span>
                 </div>

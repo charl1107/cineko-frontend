@@ -56,7 +56,7 @@ export function MediaPlayer() {
     }, [videasyUrl])
 
     return (
-        <div className="h-screen w-full bg-black">
+        <div className="h-full w-full bg-black">
             {videasyUrl ? (
                 <iframe
                     ref={iframeRef}
