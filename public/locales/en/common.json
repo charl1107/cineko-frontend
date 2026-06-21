@@ -1,0 +1,59 @@
+{
+    "projectName": "Cineko",
+    "authors": "Cineko",
+    "coreName": "Cineko",
+    "notFound": {
+        "title": "404 - Mmmhh... Lost you are",
+        "description": "Found, this page is not",
+        "quoteAuthor": "- Yoda",
+        "backLink": "Back Home"
+    },
+    "all": "All",
+    "results": "Results",
+    "pages": "Pages",
+    "slogan": "Your Open Cinema",
+    "loading": "Loading",
+    "welcome": "Welcome to {{projectName}}!",
+    "opensource": {
+        "git-url": "https://github.com/cineko-org/app",
+        "git-platform": "GitHub"
+    },
+    "movie": {
+        "singular": "Movie",
+        "plural": "Movies"
+    },
+    "tvShow": {
+        "singular": "TV Show",
+        "plural": "TV Shows"
+    },
+    "anime": {
+        "singular": "Anime",
+        "plural": "Anime"
+    },
+    "manga": {
+        "singular": "Manga",
+        "plural": "Manga"
+    },
+    "hentai": {
+        "singular": "Hentai",
+        "plural": "Hentai"
+    },
+    "jav": {
+        "singular": "JAV",
+        "plural": "JAV"
+    },
+    "more": "More",
+    "home": "Home",
+    "settings": "Settings",
+    "disclaimer": {
+        "label": "Disclaimer",
+        "value": "{{projectName}} is a free and_reserved streaming application. It does not host any content itself. {{projectName}} is intended for educational and personal use only."
+    },
+    "legal": {
+        "termsTitle": "Terms of Service",
+        "termsIntro": "By accessing and using {{projectName}}, you accept these terms. If you do not agree, please do not use the service.",
+        "termsUsage": "{{projectName}} is a streaming guide that indexes publicly available content from third-party providers. We do not host, store, or distribute any video files.",
+        "termsIp": "All content displayed belongs to its respective owners. {{projectName}} makes no claims of ownership over any media."
+    },
+    "backToHome": "Back to Home"
+}
