@@ -15,6 +15,7 @@ interface AnimeEpisode {
     embedUrl: string
     embedUrlSub?: string
     embedUrlDub?: string
+    videasyUrl?: string
 }
 
 // Generate episode ranges like "1-100", "101-200"
@@ -70,6 +71,7 @@ export default function WatchAnimePage() {
     const [sidebarOpen, setSidebarOpen] = useState(true)
     const [rangeValue, setRangeValue] = useState<string>("all")
     const [theaterMode, setTheaterMode] = useState(false)
+    const [provider, setProvider] = useState<"megaplay" | "videasy">("megaplay")
 
     const currentEpisode = parseInt(searchParams.get("e") || "1", 10)
 
@@ -147,7 +149,7 @@ export default function WatchAnimePage() {
         return (
             <div className="flex h-screen w-full flex-col items-center justify-center bg-black text-white">
                 <p className="text-red-400">{error}</p>
-                <Button variant="ghost" className="mt-4" onClick={() => navigate(-1)}>
+                <Button variant="ghost" className="mt-4" onClick={() => navigate("/anime")}>
                     <ChevronLeft /> Back
                 </Button>
             </div>
@@ -158,7 +160,7 @@ export default function WatchAnimePage() {
         return (
             <div className="flex h-screen w-full flex-col items-center justify-center bg-black text-white">
                 <p>No episodes available.</p>
-                <Button variant="ghost" className="mt-4" onClick={() => navigate(-1)}>
+                <Button variant="ghost" className="mt-4" onClick={() => navigate("/anime")}>
                     <ChevronLeft /> Back
                 </Button>
             </div>
@@ -175,7 +177,7 @@ export default function WatchAnimePage() {
             )}>
                 {/* Header */}
                 <div className="flex h-12 shrink-0 items-center border-b border-white/10 bg-black/90 px-4 z-10">
-                    <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
+                    <Button variant="ghost" size="sm" onClick={() => navigate("/anime")}>
                         <ChevronLeft className="mr-1 h-4 w-4" /> Back
                     </Button>
                     <div className="ml-4 text-sm font-medium text-white/80 line-clamp-1">
@@ -201,7 +203,7 @@ export default function WatchAnimePage() {
                 <div className="relative flex-1 bg-black">
                     {episode ? (
                         <iframe
-                            src={episode.embedUrl}
+                            src={provider === "videasy" ? episode.videasyUrl : episode.embedUrl}
                             className="block h-full w-full border-none"
                             allowFullScreen
                             allow="autoplay; encrypted-media; picture-in-picture"
@@ -245,6 +247,15 @@ export default function WatchAnimePage() {
                             <span className="text-xs text-white/50">
                                 {episodes.length} eps
                             </span>
+                            <Select value={provider} onValueChange={(v) => setProvider(v as "megaplay" | "videasy")}>
+                                <SelectTrigger className="w-28 h-8 border-white/10 text-xs text-white">
+                                    <SelectValue placeholder="Provider" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="megaplay">MegaPlay</SelectItem>
+                                    <SelectItem value="videasy">Videasy</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
                         <button
                             onClick={() => setSidebarOpen(false)}

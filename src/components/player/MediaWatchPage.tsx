@@ -20,6 +20,11 @@ function MediaWatchPageContent({ type }: { type: MediaType }) {
 
     const { error } = media
 
+    const goBack = () => {
+        const home = type === "movie" ? "/movies" : "/shows"
+        navigate(home)
+    }
+
     if (error) {
         return (
             <div className="flex h-full min-h-screen w-full items-center justify-center p-6">
@@ -37,7 +42,7 @@ function MediaWatchPageContent({ type }: { type: MediaType }) {
     return (
         <div className="relative flex flex-col h-screen w-full bg-black text-foreground overflow-hidden">
             <div className="absolute top-4 left-4 z-50">
-                <Button variant="ghost" className="border border-border" onClick={() => navigate(-1)}>
+                <Button variant="ghost" className="border border-border" onClick={goBack}>
                     <ChevronLeft className="h-6 w-6" /> Back
                 </Button>
             </div>
