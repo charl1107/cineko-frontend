@@ -35,14 +35,14 @@ function MediaWatchPageContent({ type }: { type: MediaType }) {
     }
 
     return (
-        <div className="relative h-screen w-full bg-black text-foreground overflow-hidden">
+        <div className="relative flex flex-col h-screen w-full bg-black text-foreground overflow-hidden">
             <div className="absolute top-4 left-4 z-50">
                 <Button variant="ghost" className="border border-border" onClick={() => navigate(-1)}>
                     <ChevronLeft className="h-6 w-6" /> Back
                 </Button>
             </div>
 
-            <div className="h-full w-full">
+            <div className="relative flex flex-1 min-h-0 w-full">
                 <MediaPlayer />
             </div>
         </div>

@@ -62,9 +62,9 @@ export function MediaPlayer() {
                     ref={iframeRef}
                     id="videasy-player"
                     src={videasyUrl}
-                    className="absolute inset-0 h-full w-full border-none"
-                    allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+                    className="block h-full w-full border-none"
                     allowFullScreen
+                    allow="autoplay; encrypted-media; picture-in-picture"
                     loading="eager"
                     title="Videasy Player"
                 />
