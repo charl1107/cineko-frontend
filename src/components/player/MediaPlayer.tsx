@@ -56,13 +56,13 @@ export function MediaPlayer() {
     }, [videasyUrl])
 
     return (
-        <div className="h-full w-full bg-black">
+        <div className="relative h-full w-full bg-black">
             {videasyUrl ? (
                 <iframe
                     ref={iframeRef}
                     id="videasy-player"
                     src={videasyUrl}
-                    className="block h-full w-full border-none"
+                    className="absolute inset-0 h-full w-full border-none"
                     allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
                     allowFullScreen
                     loading="eager"
