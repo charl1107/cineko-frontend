@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useTmdb } from "@/hooks/use-tmdb"
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select"
@@ -84,13 +84,13 @@ export function AnimeEpisodes({ animeId }: { animeId: string | number }) {
 
     if (!episodes.length) return null
 
-    const displayedEpisodes = useMemo(() => {
+    const displayedEpisodes = (() => {
         if (hasSeasons && seasons.length > 0) {
             const season = seasons.find((s) => String(s.number) === selectedSeason)
             return season?.episodes ?? []
         }
         return episodes.filter((ep) => isInRange(ep.number ?? ep.episode ?? 0, rangeValue))
-    }, [hasSeasons, seasons, selectedSeason, episodes, rangeValue])
+    })()
 
     const ranges = getRanges(episodes.length)
 
