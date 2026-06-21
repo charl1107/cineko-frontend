@@ -1,0 +1,21 @@
+{
+  "name": "Cineko",
+  "short_name": "Cineko",
+  "description": "Stream Movies & TV Shows for free online without ads!",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#ea383e",
+  "icons": [
+    {
+      "src": "/icon512_rounded.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
