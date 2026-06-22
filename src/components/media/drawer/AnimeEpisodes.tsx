@@ -3,215 +3,174 @@ import { useNavigate } from "react-router-dom"
 import { useTmdb } from "@/hooks/use-tmdb"
 import { useMediaDrawer } from "./hooks/useMediaDrawer"
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select"
+import { fetchAniListRelations, buildSeasonList, type SeasonItem } from "@/lib/anilist"
 
 interface AnimeEpisodeItem {
-    id?: string | number
-    number?: number
-    episode?: number
-    title?: string
-    name?: string
-}
-
-interface AnimeSeason {
-    number: number
-    name: string
-    episodes?: AnimeEpisodeItem[]
-    anikotoId?: string
-    isCurrent?: boolean
-    relation?: string
-    malId?: number
+  id?: string | number
+  number?: number
+  episode?: number
+  title?: string
+  name?: string
 }
 
 function getRanges(total: number, chunkSize: number = 100): { label: string; value: string; start: number; end: number }[] {
-    if (total <= 0) return []
-    const ranges: { label: string; value: string; start: number; end: number }[] = []
-    for (let i = 0; i < total; i += chunkSize) {
-        const start = i + 1
-        const end = Math.min(i + chunkSize, total)
-        ranges.push({ label: `${start}-${end}`, value: `${start}-${end}`, start, end })
-    }
-    return ranges
+  if (total <= 0) return []
+  const ranges: { label: string; value: string; start: number; end: number }[] = []
+  for (let i = 0; i < total; i += chunkSize) {
+    const start = i + 1
+    const end = Math.min(i + chunkSize, total)
+    ranges.push({ label: `${start}-${end}`, value: `${start}-${end}`, start, end })
+  }
+  return ranges
 }
 
 function isInRange(episodeNum: number, rangeValue: string): boolean {
-    if (rangeValue === 'all') return true
-    const [startStr, endStr] = rangeValue.split('-')
-    const start = parseInt(startStr, 10)
-    const end = parseInt(endStr, 10)
-    return episodeNum >= start && episodeNum <= end
+  if (rangeValue === 'all') return true
+  const [startStr, endStr] = rangeValue.split('-')
+  const start = parseInt(startStr, 10)
+  const end = parseInt(endStr, 10)
+  return episodeNum >= start && episodeNum <= end
 }
 
 export function AnimeEpisodes({ animeId }: { animeId: string | number }) {
-    const tmdb = useTmdb()
-    const navigate = useNavigate()
-    const { open } = useMediaDrawer()
-    const [episodes, setEpisodes] = useState<AnimeEpisodeItem[]>([])
-    const [seasons, setSeasons] = useState<AnimeSeason[]>([])
-    const [hasSeasons, setHasSeasons] = useState(false)
-    const [selectedSeason, setSelectedSeason] = useState('1')
-    const [rangeValue, setRangeValue] = useState('all')
-    const [isLoading, setIsLoading] = useState(true)
+  const tmdb = useTmdb()
+  const navigate = useNavigate()
+  const { open } = useMediaDrawer()
+  const [episodes, setEpisodes] = useState<AnimeEpisodeItem[]>([])
+  const [allSeasons, setAllSeasons] = useState<SeasonItem[]>([])
+  const [hasSeasonDropdown, setHasSeasonDropdown] = useState(false)
+  const [selectedSeason, setSelectedSeason] = useState('1')
+  const [rangeValue, setRangeValue] = useState('all')
+  const [isLoading, setIsLoading] = useState(true)
 
-    useEffect(() => {
-        let cancelled = false
-        setIsLoading(true)
+  useEffect(() => {
+    let cancelled = false
+    setIsLoading(true)
 
-        tmdb.anime
-            .episodes(animeId)
-            .then((data) => {
-                if (cancelled) return
-                const d = data as Record<string, unknown>
-                const list = (Array.isArray(Array.isArray(d.episodes) ? d.episodes : d.results) ? (Array.isArray(d.episodes) ? d.episodes : d.results) : []) as AnimeEpisodeItem[]
-                const apiSeasons = (d.seasons as AnimeSeason[]) ?? []
-                const relatedSeasons = (d.relatedSeasons as AnimeSeason[]) ?? []
+    tmdb.anime
+      .episodes(animeId)
+      .then(async (data) => {
+        if (cancelled) return
+        const d = data as Record<string, unknown>
+        const list = (Array.isArray(d.episodes) ? d.episodes : d.results) as AnimeEpisodeItem[]
+        const media = (d.media || d.anime || {}) as Record<string, unknown>
 
-                // Merge seasons and relatedSeasons into one list
-                let mergedSeasons: AnimeSeason[] = [...apiSeasons]
-                for (const rs of relatedSeasons) {
-                    if (!mergedSeasons.some(s => s.number === rs.number)) {
-                        mergedSeasons.push(rs)
-                    }
-                }
-                mergedSeasons.sort((a, b) => a.number - b.number)
+        setEpisodes((Array.isArray(list) ? list : []).filter((ep) => ep))
 
-                const hasManySeasons = mergedSeasons.length > 1 || !!d.hasSeasons
+        const currentMalId = (media.mal_id || media.malId || media.idMal) as string | undefined
+        let seasons: SeasonItem[] = []
 
-                setHasSeasons(hasManySeasons)
-                setSeasons(mergedSeasons)
-                setEpisodes((Array.isArray(list) ? list : []).filter((ep) => ep))
-
-                // Default selected season to current
-                const current = mergedSeasons.find((s) => s.isCurrent)
-                setSelectedSeason(current ? String(current.number) : (mergedSeasons[0]?.number ? String(mergedSeasons[0].number) : '1'))
-                setRangeValue('all')
-                setIsLoading(false)
-            })
-            .catch(() => {
-                if (!cancelled) setIsLoading(false)
-            })
-
-        return () => { cancelled = true }
-    }, [animeId, tmdb])
-
-    if (isLoading) {
-        return (
-            <div className="flex h-40 items-center justify-center">
-                <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-            </div>
-        )
-    }
-
-    if (!episodes.length && !seasons.length) return null
-
-    const handleSeasonChange = (value: string) => {
-        const season = seasons.find((s) => String(s.number) === value)
-        if (!season) return
-
-        if (season.isCurrent) {
-            setSelectedSeason(value)
-            return
+        if (currentMalId) {
+          try {
+            const aniData = await fetchAniListRelations(currentMalId)
+            const title = (media.title || media.name || "") as string
+            seasons = buildSeasonList(aniData, title)
+          } catch {
+            // AniList call failed — ignore
+          }
         }
 
-        // Cross-entry season: open a new drawer if we have the Anikoto ID
-        if (season.anikotoId) {
-            open({ type: 'anime', id: season.anikotoId })
-            return
+        const apiSeasons = (d.seasons as Array<{ number: number; name: string; isCurrent?: boolean; episodes?: AnimeEpisodeItem[] }>) || []
+        if (apiSeasons.length > 1) {
+          setAllSeasons(apiSeasons.map(s => ({ ...s, relation: s.isCurrent ? "CURRENT" : "OTHER" } as SeasonItem)))
+          setHasSeasonDropdown(true)
+        } else if (seasons.length > 1) {
+          setAllSeasons(seasons)
+          setHasSeasonDropdown(true)
+          const current = seasons.find(s => s.isCurrent)
+          setSelectedSeason(String(current?.number || 1))
+        } else {
+          setAllSeasons([])
+          setHasSeasonDropdown(false)
         }
 
-        // No Anikoto ID: navigate to anime search
-        if (season.name) {
-            navigate(`/anime?search=${encodeURIComponent(season.name)}`)
-        }
-    }
+        setIsLoading(false)
+      })
+      .catch(() => {
+        if (!cancelled) setIsLoading(false)
+      })
 
-    // Determine which episodes to show
-    const currentSeason = seasons.find((s) => s.isCurrent)
-    const selectedIsCurrent = currentSeason && String(currentSeason.number) === selectedSeason
+    return () => { cancelled = true }
+  }, [animeId, tmdb])
 
-    const displayedEpisodes = (() => {
-        // If a non-current season is selected, show its episodes if pre-loaded
-        if (hasSeasons && seasons.length > 0) {
-            const season = seasons.find((s) => String(s.number) === selectedSeason)
-            if (season?.episodes && season.episodes.length > 0) {
-                return season.episodes
-            }
-            // If not the current season, show nothing (user needs to click to open)
-            if (!selectedIsCurrent) {
-                return []
-            }
-        }
-        // Default: filter by range
-        return episodes.filter((ep) => isInRange(ep.number ?? ep.episode ?? 0, rangeValue))
-    })()
-
-    const ranges = getRanges(episodes.length)
-
+  if (isLoading) {
     return (
-        <section className="space-y-4">
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                    <h3 className="text-xl font-semibold">Episodes</h3>
-
-                    {hasSeasons && seasons.length > 1 && (
-                        <Select value={selectedSeason} onValueChange={handleSeasonChange}>
-                            <SelectTrigger className="w-40 h-8 text-xs">
-                                <SelectValue placeholder="Season" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {seasons.map((s) => (
-                                    <SelectItem key={s.number} value={String(s.number)}>
-                                        {s.name}{s.isCurrent ? ' (Current)' : ''}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    )}
-
-                    {(!hasSeasons || seasons.length <= 1) && ranges.length > 1 && (
-                        <Select value={rangeValue} onValueChange={setRangeValue}>
-                            <SelectTrigger className="w-32 h-8 text-xs">
-                                <SelectValue placeholder="Range" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">All</SelectItem>
-                                {ranges.map((r) => (
-                                    <SelectItem key={r.value} value={r.value}>
-                                        {r.label}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    )}
-                </div>
-
-                <span className="text-sm text-muted-foreground">
-                    {displayedEpisodes.length} / {episodes.length}
-                </span>
-            </div>
-
-            <div className="h-100 overflow-y-auto pr-2">
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-                    {displayedEpisodes.map((ep) => {
-                        const number = ep.number ?? ep.episode ?? 0
-                        return (
-                            <button
-                                key={ep.id ?? number}
-                                onClick={() => navigate(`/watch/anime/${animeId}?e=${number}`)}
-                                className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-left text-sm text-white transition hover:bg-white/10"
-                            >
-                                <div className="font-medium">EP {number}</div>
-                                <div className="truncate text-xs text-white/60">{ep.title || ep.name || "Episode"}</div>
-                            </button>
-                        )
-                    })}
-                </div>
-
-                {displayedEpisodes.length === 0 && (
-                    <div className="flex h-20 items-center justify-center text-sm text-muted-foreground">
-                        No episodes in this selection.
-                    </div>
-                )}
-            </div>
-        </section>
+      <div className="flex h-40 items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
     )
+  }
+
+  if (!episodes.length && !allSeasons.length) return null
+
+  const handleSeasonChange = (value: string) => {
+    const season = allSeasons.find((s) => String(s.number) === value)
+    if (!season || season.isCurrent) return
+    if (season.name) {
+      open({ type: 'anime', id: season.malId ? `mal-${season.malId}` : String(animeId) })
+    }
+  }
+
+  const ranges = getRanges(episodes.length)
+
+  return (
+    <section className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <h3 className="text-xl font-semibold">Episodes</h3>
+
+          {hasSeasonDropdown && allSeasons.length > 1 && (
+            <Select value={selectedSeason} onValueChange={handleSeasonChange}>
+              <SelectTrigger className="w-40 h-8 text-xs">
+                <SelectValue placeholder="Season" />
+              </SelectTrigger>
+              <SelectContent>
+                {allSeasons.map((s) => (
+                  <SelectItem key={s.number} value={String(s.number)}>
+                    {s.name}{s.isCurrent ? ' (Current)' : ''}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+
+          {(!hasSeasonDropdown || allSeasons.length <= 1) && ranges.length > 1 && (
+            <Select value={rangeValue} onValueChange={setRangeValue}>
+              <SelectTrigger className="w-32 h-8 text-xs">
+                <SelectValue placeholder="Range" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                {ranges.map((r) => (
+                  <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        </div>
+
+        <span className="text-sm text-muted-foreground">
+          {episodes.length} / {episodes.length}
+        </span>
+      </div>
+
+      <div className="h-100 overflow-y-auto pr-2">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+          {episodes.map((ep) => {
+            const number = ep.number ?? ep.episode ?? 0
+            return (
+              <button
+                key={ep.id ?? number}
+                onClick={() => navigate(`/watch/anime/${animeId}?e=${number}`)}
+                className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-left text-sm text-white transition hover:bg-white/10"
+              >
+                <div className="font-medium">EP {number}</div>
+                <div className="truncate text-xs text-white/60">{ep.title || ep.name || "Episode"}</div>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+    </section>
+  )
 }
