@@ -106,9 +106,26 @@ export function AnimeEpisodes({ animeId }: { animeId: string | number }) {
   const handleSeasonChange = (value: string) => {
     const season = allSeasons.find((s) => String(s.number) === value)
     if (!season || season.isCurrent) return
-    if (season.name) {
-      open({ type: 'anime', id: season.malId ? `mal-${season.malId}` : String(animeId) })
-    }
+    if (!season.name) return
+
+    // Search Anikoto by title and open the first match
+    tmdb.anime
+      .search(season.name)
+      .then((res) => {
+        const results = res.results || []
+        const match = results.find(
+          (r) =>
+            (r.title as string)?.toLowerCase().includes(season.name.toLowerCase()) ||
+            (r.title as string)?.toLowerCase() === season.name.toLowerCase()
+        ) || results[0]
+
+        if (match?.id) {
+          open({ type: 'anime', id: String(match.id) })
+        }
+      })
+      .catch(() => {
+        // Search failed — silently ignore
+      })
   }
 
   const ranges = getRanges(episodes.length)

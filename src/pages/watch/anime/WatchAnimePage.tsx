@@ -177,13 +177,26 @@ export default function WatchAnimePage() {
       setSelectedSeason(value)
       return
     }
-    if (season.malId) {
-      // Navigate to search or open in new context
-      // For now, try to open the anime by MAL ID via Anikoto
-      // Fallback: keep current behavior
-      setSelectedSeason(value)
-      return
-    }
+    if (!season.name) return
+
+    // Search Anikoto by title and navigate to the best match
+    tmdb.anime
+      .search(season.name)
+      .then((res) => {
+        const results = res.results || []
+        const match = results.find(
+          (r) =>
+            (r.title as string)?.toLowerCase().includes(season.name.toLowerCase()) ||
+            (r.title as string)?.toLowerCase() === season.name.toLowerCase()
+        ) || results[0]
+
+        if (match?.id) {
+          navigate(`/watch/anime/${match.id}?e=1`)
+        }
+      })
+      .catch(() => {
+        // Search failed — silently ignore
+      })
   }
 
   const episode = episodes.find((ep) => ep.number === currentEpisode)
