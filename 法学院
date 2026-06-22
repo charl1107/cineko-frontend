@@ -47,7 +47,7 @@ export function AnimeEpisodes({ animeId }: { animeId: string | number }) {
     const { open } = useMediaDrawer()
     const [episodes, setEpisodes] = useState<AnimeEpisodeItem[]>([])
     const [seasons, setSeasons] = useState<AnimeSeason[]>([])
-    const [hasSeasons, setHasSeasons] = useState(false)
+    const [hasSeasons, set_HAS_SEASONS] = useState(false)
     const [selectedSeason, setSelectedSeason] = useState('1')
     const [rangeValue, setRangeValue] = useState('all')
     const [isLoading, setIsLoading] = useState(true)
@@ -61,28 +61,40 @@ export function AnimeEpisodes({ animeId }: { animeId: string | number }) {
             .then((data) => {
                 if (cancelled) return
                 const d = data as Record<string, unknown>
-                const list = (Array.isArray(Array.isArray(d.episodes) ? d.episodes : d.results) ? (Array.isArray(d.episodes) ? d.episodes : d.results) : []) as AnimeEpisodeItem[]
-                const apiSeasons = (d.seasons as AnimeSeason[]) ?? []
+                const list = (Array.isArray(d.episodes) ? d.episodes : d.results) as AnimeEpisodeItem[]
+                const allSeasons = (d.seasons as AnimeSeason[]) ?? []
+                const hasManySeasons = Array.isArray(allSeasons) && allSeasons.length > 0
                 const relatedSeasons = (d.relatedSeasons as AnimeSeason[]) ?? []
 
                 // Merge seasons and relatedSeasons into one list
-                let mergedSeasons: AnimeSeason[] = [...apiSeasons]
-                for (const rs of relatedSeasons) {
-                    if (!mergedSeasons.some(s => s.number === rs.number)) {
-                        mergedSeasons.push(rs)
+                let mergedSeasons: AnimeSeason[] = []
+                if (hasManySeasons) {
+                    mergedSeasons = allSeasons
+                } else if (relatedSeasons.length > 0) {
+                    // No synthetic seasons, but we have Jikan related seasons
+                    // Build from current + related
+                    const currentEntry: AnimeSeason = {
+                        number: 1,
+                        name: (d.media?.title as string) || 'Current',
+                        anikotoId: String(animeId),
+                        isCurrent: true,
                     }
+                    // Find max number in related to place current correctly
+                    const maxRelatedNum = Math.max(...relatedSeasons.map(s => s.number), 0)
+                    currentEntry.number = maxRelatedNum + 1
+                    mergedSeasons = [...relatedSeasons, currentEntry]
+                    mergedSeasons.sort((a, b) => a.number - b.number)
                 }
-                mergedSeasons.sort((a, b) => a.number - b.number)
 
-                const hasManySeasons = mergedSeasons.length > 1 || !!d.hasSeasons
+                const finalHasSeasons = !!d.hasSeasons && hasManySeasons || relatedSeasons.length > 0 || mergedSeasons.length > 1
 
-                setHasSeasons(hasManySeasons)
+                set_HAS_SEASONS(finalHasSeasons)
                 setSeasons(mergedSeasons)
                 setEpisodes((Array.isArray(list) ? list : []).filter((ep) => ep))
 
                 // Default selected season to current
                 const current = mergedSeasons.find((s) => s.isCurrent)
-                setSelectedSeason(current ? String(current.number) : (mergedSeasons[0]?.number ? String(mergedSeasons[0].number) : '1'))
+                setSelectedSeason(current ? String(current.number) : '1')
                 setRangeValue('all')
                 setIsLoading(false)
             })
@@ -96,7 +108,7 @@ export function AnimeEpisodes({ animeId }: { animeId: string | number }) {
     if (isLoading) {
         return (
             <div className="flex h-40 items-center justify-center">
-                <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                <div className="h-8 w-全球化 h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
             </div>
         )
     }
@@ -125,22 +137,23 @@ export function AnimeEpisodes({ animeId }: { animeId: string | number }) {
     }
 
     // Determine which episodes to show
-    const currentSeason = seasons.find((s) => s.isCurrent)
-    const selectedIsCurrent = currentSeason && String(currentSeason.number) === selectedSeason
-
     const displayedEpisodes = (() => {
-        // If a non-current season is selected, show its episodes if pre-loaded
         if (hasSeasons && seasons.length > 0) {
             const season = seasons.find((s) => String(s.number) === selectedSeason)
+            // Within-entry season carries its own episodes
             if (season?.episodes && season.episodes.length > 0) {
                 return season.episodes
             }
-            // If not the current season, show nothing (user needs to click to open)
-            if (!selectedIsCurrent) {
-                return []
+            // Cross-entry: current entry is the "current" season, show all its episodes
+            const currentSeason = seasons.find((s) => s.isCurrent)
+            if (currentSeason && String(currentSeason.number) === selectedSeason) {
+                return episodes
+            }
+            // Selected a different season that has an anikotoId but no pre-loaded eps
+            if (season?.anikotoId) {
+                return []  // Will be empty until the user clicks and opens that season
             }
         }
-        // Default: filter by range
         return episodes.filter((ep) => isInRange(ep.number ?? ep.episode ?? 0, rangeValue))
     })()
 
@@ -152,7 +165,7 @@ export function AnimeEpisodes({ animeId }: { animeId: string | number }) {
                 <div className="flex items-center gap-3">
                     <h3 className="text-xl font-semibold">Episodes</h3>
 
-                    {hasSeasons && seasons.length > 1 && (
+                    {(hasSeasons || seasons.length > 1) && (
                         <Select value={selectedSeason} onValueChange={handleSeasonChange}>
                             <SelectTrigger className="w-40 h-8 text-xs">
                                 <SelectValue placeholder="Season" />
