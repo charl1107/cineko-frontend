@@ -16,7 +16,7 @@ export default function Header() {
 
     return (
         <>
-            <header className="fixed top-0 left-0 z-50 w-full py-3">
+            <header className="fixed top-0 left-0 z-50 w-full py-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
                 <div className="mx-auto flex h-16 w-[min(92vw,1240px)] items-center rounded-2xl border bg-background/20 px-4 backdrop-blur-xl sm:px-5 lg:px-6">
                     {/* LEFT */}
                     <div className="flex flex-1 items-center gap-2">

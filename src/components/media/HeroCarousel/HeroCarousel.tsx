@@ -103,7 +103,8 @@ export function HeroCarousel({ tmdb, fetcher }: { tmdb: TMDB; fetcher: HeroFetch
                 ))}
             </CarouselContent>
 
-            <div className="absolute bottom-8 left-1/2 z-10 flex -translate-x-1/2 gap-3">
+            {/* Carousel dots — h-10 w-10 touch targets (44px min) */}
+            <div className="absolute bottom-8 left-1/2 z-10 flex -translate-x-1/2 gap-1">
                 {slides.map((slide, index) => {
                     const isActive = activeSlide === index
 
@@ -114,9 +115,12 @@ export function HeroCarousel({ tmdb, fetcher }: { tmdb: TMDB; fetcher: HeroFetch
                                 heroApi?.scrollTo(index)
                                 setProgressKey((p) => p + 1)
                             }}
-                            className={`relative h-2.5 overflow-hidden rounded-full transition-all duration-300 ${isActive ? "w-10 bg-primary/20" : "w-2.5 bg-white/30 hover:bg-white/50"}`}
+                            className="flex h-10 w-10 items-center justify-center rounded-full"
+                            aria-label={`Go to slide ${index + 1}`}
                         >
-                            {isActive && <div key={`${progressKey}-${index}`} className="animate-carousel-progress absolute inset-0 origin-left rounded-full bg-primary" />}
+                            <span className={`block h-2.5 overflow-hidden rounded-full transition-all duration-300 ${isActive ? "w-10 bg-primary/20" : "w-2.5 bg-white/30 hover:bg-white/50"}`}>
+                                {isActive && <span key={`${progressKey}-${index}`} className="animate-carousel-progress absolute inset-0 origin-left rounded-full bg-primary" />}
+                            </span>
                         </button>
                     )
                 })}

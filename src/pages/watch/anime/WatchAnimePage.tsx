@@ -236,8 +236,8 @@ export default function WatchAnimePage() {
       <div className={cn(
         "flex flex-col bg-black text-white",
         theaterMode
-          ? "fixed inset-0 z-50 h-screen w-screen"
-          : "relative h-screen w-full"
+          ? "fixed inset-0 z-50 h-screen supports-[height:100dvh]:h-dvh w-screen"
+          : "relative h-screen supports-[height:100dvh]:h-dvh w-full"
       )}>
         {/* Header */}
         <div className="flex h-12 shrink-0 items-center border-b border-white/10 bg-black/90 px-4 z-10">
@@ -280,11 +280,11 @@ export default function WatchAnimePage() {
               </div>
             )}
 
-            {/* Toggle button */}
+            {/* Toggle button — min 44 px touch target */}
             <button
               onClick={() => setSidebarOpen((v) => !v)}
               className={cn(
-                "absolute right-0 top-1/2 -translate-y-1/2 flex h-10 w-8 items-center justify-center rounded-l-lg bg-white/10 text-white/80 backdrop-blur-md transition-all hover:bg-white/20",
+                "absolute right-0 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-l-lg bg-white/10 text-white/80 backdrop-blur-md transition-all hover:bg-white/20",
                 sidebarOpen && "translate-x-full opacity-0 pointer-events-none"
               )}
               style={{ zIndex: 20 }}
@@ -294,11 +294,11 @@ export default function WatchAnimePage() {
             </button>
           </div>
 
-          {/* Episode panel */}
+          {/* Episode panel — responsive width for small screens */}
           <div
             className={cn(
               "flex shrink-0 flex-col h-full border-l border-white/10 bg-black transition-all duration-300 ease-in-out",
-              sidebarOpen ? "w-80 opacity-100" : "w-0 opacity-0 border-l-0"
+              sidebarOpen ? "w-[85vw] max-w-80 opacity-100" : "w-0 opacity-0 border-l-0"
             )}
           >
             <div className="flex h-12 shrink-0 items-center justify-between border-b border-white/10 px-4">
@@ -343,7 +343,7 @@ export default function WatchAnimePage() {
               </div>
               <button
                 onClick={() => setSidebarOpen(false)}
-                className="rounded-md p-1.5 text-white/60 transition hover:bg-white/10 hover:text-white"
+                className="flex h-10 w-10 items-center justify-center rounded-md text-white/60 transition hover:bg-white/10 hover:text-white"
                 title="Close episodes"
               >
                 <PanelRightClose className="h-4 w-4" />
@@ -361,7 +361,7 @@ export default function WatchAnimePage() {
                       data-active={isActive}
                       onClick={() => goToEpisode(ep.number)}
                       className={cn(
-                        "flex h-9 items-center justify-center rounded-md text-xs font-medium transition",
+                        "flex h-11 items-center justify-center rounded-md text-xs font-medium transition",
                         isActive
                           ? "bg-primary text-primary-foreground"
                           : "bg-white/10 text-white/80 hover:bg-white/20"
