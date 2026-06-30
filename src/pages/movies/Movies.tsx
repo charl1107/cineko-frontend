@@ -6,8 +6,12 @@ import { useEffect, useState } from "react"
 import type { Genre, TrendingParams } from "@lorenzopant/tmdb"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select.tsx"
+import { useTranslation } from "react-i18next"
+import { usePageTitle } from "@/hooks/use-page-title"
 
 export default function Movies() {
+    const { t } = useTranslation("common")
+    usePageTitle(`${t("movie.plural")} — Cineko`, "/movies")
     const tmdb = useTmdb()
     const [trendingRange, setTrendingRange] = useState<TrendingParams>({ time_window: "day" })
     const [genres, setGenres] = useState<Genre[]>([])
@@ -45,13 +49,13 @@ export default function Movies() {
                 <MovieRail
                     title={
                         <div className={"flex items-center justify-between"}>
-                            <h2 className="text-2xl font-semibold">Trending Movies</h2>
+                            <h2 className="text-2xl font-semibold">{t("trending")} {t("movie.plural")}</h2>
                             <div className="ml-4 flex items-center gap-2">
                                 <Button onClick={() => setTrendingRange({ time_window: "day" })} variant={trendingRange.time_window === "day" ? "default" : "secondary"}>
-                                    Today
+                                    {t("today")}
                                 </Button>
                                 <Button onClick={() => setTrendingRange({ time_window: "week" })} variant={trendingRange.time_window === "week" ? "default" : "secondary"}>
-                                    This Week
+                                    {t("thisWeek")}
                                 </Button>
                             </div>
                         </div>
@@ -62,7 +66,7 @@ export default function Movies() {
                 <MovieRail
                     title={
                         <div className="flex items-center justify-between">
-                            <h2 className="text-2xl font-semibold">{selectedGenre ? `${selectedGenre.name} Movies` : "Select Genre"}</h2>
+                            <h2 className="text-2xl font-semibold">{selectedGenre ? `${selectedGenre.name} ${t("movie.plural")}` : t("selectGenre")}</h2>
 
                             <Select
                                 value={selectedGenre?.id?.toString()}
@@ -75,7 +79,7 @@ export default function Movies() {
                                 }}
                             >
                                 <SelectTrigger className="w-55">
-                                    <SelectValue placeholder="Select Genre" />
+                                    <SelectValue placeholder={t("selectGenre")} />
                                 </SelectTrigger>
 
                                 <SelectContent>
@@ -93,9 +97,9 @@ export default function Movies() {
                     fetcher={() => tmdb.discover.movie({ with_genres: selectedGenre?.id })}
                 />
 
-                <MovieRail title="Popular Movies" fetcher={() => tmdb.movie_lists.popular({})} />
+                <MovieRail title={`${t("popular")} ${t("movie.plural")}`} fetcher={() => tmdb.movie_lists.popular({})} />
 
-                <MovieRail title="Top Rated Movies" fetcher={() => tmdb.movie_lists.top_rated()} />
+                <MovieRail title={`${t("topRated")} ${t("movie.plural")}`} fetcher={() => tmdb.movie_lists.top_rated()} />
             </section>
         </div>
     )

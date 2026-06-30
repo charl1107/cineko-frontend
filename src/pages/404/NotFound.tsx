@@ -2,9 +2,11 @@ import { Button } from "@/components/ui/button.tsx"
 import { HomeIcon } from "lucide-react"
 import { Link } from "react-router-dom"
 import { useTranslation } from "react-i18next"
+import { usePageTitle } from "@/hooks/use-page-title"
 
 export default function NotFound() {
     const { t } = useTranslation("common")
+    usePageTitle(t("notFound.title"))
 
     return (
         <div className="flex min-h-[60vh] w-full flex-1 flex-col items-center justify-center gap-2 p-4 text-center">

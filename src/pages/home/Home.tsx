@@ -2,8 +2,10 @@ import { useTmdb } from "@/hooks/use-tmdb"
 import { HeroCarousel } from "@/components/media/HeroCarousel/HeroCarousel"
 import { HeroFade } from "@/components/media/HeroCarousel/HeroFade"
 import { MovieRail, TvRail } from "@/components/media/MediaRail/TypedRails.tsx"
+import { usePageTitle } from "@/hooks/use-page-title"
 
 export function HomePage() {
+    usePageTitle("Cineko — Your Open Cinema", "/")
     const tmdb = useTmdb()
 
     return (

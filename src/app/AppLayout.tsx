@@ -22,7 +22,14 @@ export default function AppLayout() {
 
             <Header />
 
-            <div id="app-root" className={`relative flex min-h-screen flex-col transition-all duration-500 ease-out ${isVisible ? "translate-x-3 scale-[0.99] opacity-90" : "opacity-100"}`}>
+            <div
+                id="app-root"
+                className={`relative flex min-h-screen flex-col ${
+                    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+                        ? ""
+                        : "transition-all duration-500 ease-out"
+                } ${isVisible ? "translate-x-3 scale-[0.99] opacity-90" : "opacity-100"}`}
+            >
                 {/* background effects */}
                 <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
                     <div className="absolute top-0 left-0 h-full w-full animate-pulse animation-duration-[10s]">

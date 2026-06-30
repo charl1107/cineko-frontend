@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next"
 import { useNavigate, useSearchParams } from "react-router-dom"
+import { usePageTitle } from "@/hooks/use-page-title"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -28,6 +29,7 @@ import { cn } from "@/lib/utils"
 
 export default function Settings() {
     const { t } = useTranslation(["settings", "common"])
+    usePageTitle(`${t("settings:title")} — Cineko`, "/settings")
     const navigate = useNavigate()
 
     const [searchParams, setSearchParams] = useSearchParams()

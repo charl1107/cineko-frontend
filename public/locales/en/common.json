@@ -55,5 +55,13 @@
         "termsUsage": "{{projectName}} is a streaming guide that indexes publicly available content from third-party providers. We do not host, store, or distribute any video files.",
         "termsIp": "All content displayed belongs to its respective owners. {{projectName}} makes no claims of ownership over any media."
     },
-    "backToHome": "Back to Home"
+    "backToHome": "Back to Home",
+    "trending": "Trending",
+    "today": "Today",
+    "thisWeek": "This Week",
+    "selectGenre": "Select Genre",
+    "popular": "Popular",
+    "topRated": "Top Rated",
+    "discoverTrending": "Discover trending and popular anime series.",
+    "recent": "Recent"
 }

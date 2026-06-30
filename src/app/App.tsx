@@ -23,6 +23,9 @@ export default function App() {
 
     useEffect(() => {
         if (!isMobile) {
+            const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+            if (prefersReducedMotion) return
+
             const lenis = new Lenis({
                 autoRaf: true,
                 prevent: (node) => node.classList.contains("lenis-disabled"),

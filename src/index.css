@@ -265,11 +265,14 @@
     @apply bg-primary-foreground text-primary;
 }
 
-* {
-    scrollbar-width: none; /* hides scrollbar */
+/* Scoped scrollbar hiding: main page scrollbar only.
+   Scrollable containers declare their own scrollbar style.
+   .ep-scrollbar class provides a thin custom scrollbar for episode lists. */
+html {
+    scrollbar-width: none;
 }
 
-*::-webkit-scrollbar {
+html::-webkit-scrollbar {
     display: none;
 }
 
