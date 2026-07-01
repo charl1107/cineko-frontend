@@ -6,6 +6,7 @@ import { ChevronLeft, PanelRightClose, PanelRightOpen, Maximize, Minimize } from
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { fetchAniListRelations, buildSeasonList, type SeasonItem } from "@/lib/anilist"
+import { OrientationPrompt } from "@/components/player/OrientationPrompt"
 
 interface AnimeEpisode {
   id: string
@@ -233,6 +234,7 @@ export default function WatchAnimePage() {
 
   return (
     <>
+      <OrientationPrompt />
       <div className={cn(
         "flex flex-col bg-black text-white",
         theaterMode

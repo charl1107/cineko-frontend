@@ -2,6 +2,7 @@ import { useParams, useSearchParams, useNavigate } from "react-router-dom"
 import { MediaWatchProvider } from "./providers/MediaWatchProvider"
 import { useMediaWatch } from "./hooks/useMediaWatch"
 import { MediaPlayer } from "./MediaPlayer"
+import { OrientationPrompt } from "./OrientationPrompt"
 import type { MediaType } from "./types/media.types"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, AlertCircle, RotateCcw } from "lucide-react"
@@ -41,6 +42,7 @@ function MediaWatchPageContent({ type }: { type: MediaType }) {
 
     return (
         <div className="relative flex flex-col h-screen w-full bg-black text-foreground overflow-hidden">
+            <OrientationPrompt />
             <div className="absolute top-4 left-4 z-50">
                 <Button variant="ghost" className="border border-border" onClick={goBack}>
                     <ChevronLeft className="h-6 w-6" /> Back
