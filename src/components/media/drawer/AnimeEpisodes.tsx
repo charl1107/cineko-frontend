@@ -4,6 +4,7 @@ import { useTmdb } from "@/hooks/use-tmdb"
 import { useMediaDrawer } from "./hooks/useMediaDrawer"
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select"
 import { fetchAniListRelations, buildSeasonList, type SeasonItem } from "@/lib/anilist"
+import { lockLandscapeAndNavigate } from "@/lib/landscape-navigate"
 
 interface AnimeEpisodeItem {
   id?: string | number
@@ -178,7 +179,7 @@ export function AnimeEpisodes({ animeId }: { animeId: string | number }) {
             return (
               <button
                 key={ep.id ?? number}
-                onClick={() => navigate(`/watch/anime/${animeId}?e=${number}`)}
+                onClick={() => lockLandscapeAndNavigate(navigate, `/watch/anime/${animeId}?e=${number}`)}
                 className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-left text-sm text-white transition hover:bg-white/10"
               >
                 <div className="font-medium">EP {number}</div>

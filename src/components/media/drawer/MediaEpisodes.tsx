@@ -12,6 +12,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { Button } from "@/components/ui/button"
 import { useMediaDrawer } from "@/components/media/drawer/hooks/useMediaDrawer.ts"
 import { useNavigate } from "react-router-dom"
+import { lockLandscapeAndNavigate } from "@/lib/landscape-navigate"
 
 interface MediaEpisodesProps {
     tvId: number
@@ -47,7 +48,7 @@ export const MediaEpisodes: React.FC<MediaEpisodesProps> = ({ tvId, seasons }) =
         closeAll()
 
         requestAnimationFrame(() => {
-            navigate(`/watch/tv/${tvId}/?s=${selectedSeason}&e=${episode.episodeNumber}`)
+            lockLandscapeAndNavigate(navigate, `/watch/tv/${tvId}/?s=${selectedSeason}&e=${episode.episodeNumber}`)
         })
     }
 

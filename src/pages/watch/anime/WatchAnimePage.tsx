@@ -7,6 +7,7 @@ import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@
 import { cn } from "@/lib/utils"
 import { fetchAniListRelations, buildSeasonList, type SeasonItem } from "@/lib/anilist"
 import { OrientationPrompt } from "@/components/player/OrientationPrompt"
+import { lockLandscapeAndNavigate } from "@/lib/landscape-navigate"
 
 interface AnimeEpisode {
   id: string
@@ -192,7 +193,7 @@ export default function WatchAnimePage() {
         ) || results[0]
 
         if (match?.id) {
-          navigate(`/watch/anime/${match.id}?e=1`)
+          lockLandscapeAndNavigate(navigate, `/watch/anime/${match.id}?e=1`)
         }
       })
       .catch(() => {

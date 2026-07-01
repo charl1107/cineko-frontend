@@ -11,6 +11,7 @@ import "@/styles/animation.css"
 import { useMediaDrawer } from "@/components/media/drawer/hooks/useMediaDrawer"
 import { useIsMobile } from "@/hooks/use-mobile.ts"
 import { useNavigate } from "react-router-dom"
+import { lockLandscapeAndNavigate } from "@/lib/landscape-navigate"
 
 export function HeroCarousel({ tmdb, fetcher }: { tmdb: TMDB; fetcher: HeroFetcherResult }) {
     const { open } = useMediaDrawer()
@@ -78,9 +79,9 @@ export function HeroCarousel({ tmdb, fetcher }: { tmdb: TMDB; fetcher: HeroFetch
                                                 className="rounded-full px-7"
                                                 onClick={() => {
                                                     if (slide.type === "movie") {
-                                                        navigate("/watch/movie/" + slide.id)
+                                                        lockLandscapeAndNavigate(navigate, "/watch/movie/" + slide.id)
                                                     } else if (slide.type === "tv") {
-                                                        navigate("/watch/tv/" + slide.id + "?s=1&e=1")
+                                                        lockLandscapeAndNavigate(navigate, "/watch/tv/" + slide.id + "?s=1&e=1")
                                                     }
                                                 }}
                                             >

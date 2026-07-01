@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils.ts"
 import { StarRating } from "@/components/media/StarRating"
 import { useNavigate } from "react-router-dom"
 import { useMediaDrawer } from "@/components/media/drawer/hooks/useMediaDrawer.ts"
+import { lockLandscapeAndNavigate } from "@/lib/landscape-navigate"
 
 interface MediaDrawerProps {
     payload: MediaDrawerPayload
@@ -43,7 +44,7 @@ export function MediaDrawer({ payload, isOpen, onClose, className }: MediaDrawer
         closeAll()
 
         requestAnimationFrame(() => {
-            navigate(path)
+            lockLandscapeAndNavigate(navigate, path)
         })
     }
 
