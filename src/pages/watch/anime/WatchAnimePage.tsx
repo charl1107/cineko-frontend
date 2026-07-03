@@ -1,7 +1,7 @@
 import { useNavigate, useParams, useSearchParams } from "react-router-dom"
 import { useEffect, useState, useRef } from "react"
 import { useTmdb } from "@/hooks/use-tmdb"
-import { Button } from "@/ui/button"
+import { Button } from "@/components/ui/button"
 import { ChevronLeft, PanelRightClose, PanelRightOpen, Maximize, Minimize } from "lucide-react"
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select"
 import { cn } from "@/lib/utils"

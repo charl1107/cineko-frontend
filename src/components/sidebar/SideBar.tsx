@@ -47,9 +47,7 @@ export default function SideBar() {
     }
 
     return (
-        {/* z-50 stacks above overlay (z-20) and main content (z-10).
-             Sidebar is inside its own stacking context. */}
-        <Sidebar side="left" variant="floating" collapsible="offcanvas" className={"z-50" + (isVisible ? " hidden" : "")}>
+        <Sidebar side="left" variant="floating" collapsible="offcanvas" className={cn("z-50", isVisible && "hidden")}>
             {/* Header */}
             <SidebarHeader>
                 <div onClick={() => clickHandler("/")} className="flex cursor-pointer items-center gap-3 px-2 py-2">
